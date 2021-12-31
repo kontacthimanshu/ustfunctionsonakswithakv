@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: funcwithaksakv-deployment
+  labels:
+    app: my-func-with-akv
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: my-func-with-akv
+      labels:
+        app: my-func-with-akv
+        version: v1.0.0
+    spec:
+      containers:
+      - name: my-func-with-akv-pod
+        image: ustdemoacr.azurecr.io/storagetriggerfuncwithakv:latest
+        volumeMounts:
+        - name: secrets-store01-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true        
+        imagePullPolicy: Always       
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+          limits:
+            cpu: 700m
+            memory: 2Gi
+      volumes:
+        - name: secrets-store01-inline
+          csi:
+             driver: secrets-store.csi.k8s.io
+             readOnly: true
+             volumeAttributes:
+                secretProviderClass: "azure-funcakvaksdemo"            
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: my-func-with-akv
+      version: v1.0.0
