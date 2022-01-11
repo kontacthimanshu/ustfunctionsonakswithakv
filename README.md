@@ -94,5 +94,25 @@
 ##### - az keyvault set-policy -n ustdemoazkv --key-permissions get --spn $kbltmiclientId
 #### --- - Assign the kubelet MI roles to read from ACR
 ##### - az role assignment create --assignee $kbltMiSpId --scope $acrresourceID --role acrpull
+#### --- - Clone the repo
+##### - git clone https://github.com/kontacthimanshu/ustfunctionsonakswithakv.git
+#### --- - Create SecretProviderClass
+#### --- - Go to the folder/directory where you cloned the repo (use cd command)
+#### --- - Go to the folder named "yaml" which inside the folder wherein you cloned the repo (use cd command)
+##### - kubectl apply -f .\azuresync.yaml
+#### --- - Run following commands to run function PODs
+#### --- - Go inside folder "azstoragetriggerdemo" which is inside the folder in which you cloned the repo (use cd command)
+#### --- - Build docker image of function (if you get ACR login error run az acr login -n ustdemoace)
+##### - docker build -t ustdemoacr.azurecr.io/azfuncwithakvdemo:latest .
+#### --- - Push the docker image to ACR
+##### - docker push ustdemoacr.azurecr.io/azfuncwithakvdemo:latest
+#### --- Create the deployment (Deploy function POD)
+#### --- - Go to the folder named "yaml" which inside the folder wherein you cloned the repo (use cd command)
+##### - kubectl apply -f funcpod.yaml
+#### --- - To test if everything is fine, upload some files to the blob container you created in earlier steps
+#### --- - Checks logs of one of the PODs, you should see the file name printed among other logs
+##### - kubectl get pods (copy the name of the pods)
+##### - kubectl logs "name of the pod copied from above command"
+
 
 
