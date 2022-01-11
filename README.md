@@ -15,7 +15,7 @@
 #### 5. Create a Blob Container in it
 #### 6. Create an Azure Container Registry (hereinafter called ACR)
 #### 7. Get the resource ID of the ACR
-#### 8. Assign the MI created above a role to read from ACR
+#### 8. Assign the MI created above a role to read from ACR (Skip if you don't want control plaine MI to access ACR)
 #### 9. Get connection string of the Storage Account
 #### 10. Create an Azure Key Vault (hereinafter called AKV). Make a note of the tenant ID of the AKV displayed in the output of the command.
 #### 11. Create following secrets in AKV which will store the connection string of the storage account
@@ -42,3 +42,33 @@
 #### ----------------------------------------------------------------------------------------------------------------------------------------
 ### Steps with Commands
 #### ----------------------------------------------------------------------------------------------------------------------------------------
+#### --- Create a Resource Group
+##### - az group create -l eastus
+#### --- Create a Managed Identity (hereinafter called MI)
+##### - az identity create --name ustdemomi --resource-group ustdemo
+#### --- - Copy the output of the above command and keep it as a note
+#### --- - Get the resource ID and service principal Id of the MI
+##### - $miresourceId=$(az identity show --resource-group ustdemo --name ustdemomi --query id --output tsv)
+##### - $MiSpId=$(az identity show --resource-group ustdemo --name ustdemomi --query principalId --output tsv)
+#### --- - Create a Storage Account
+##### - az storage account create -n ustfuncdemostorage -g ustdemo -l eastus --sku Standard_LRS
+#### --- - Create a blob container in the above storage account
+##### - az storage account keys list -g ustdemo -n ustfuncdemostorage
+#### --- - Copy the value of one of the key listed as output of above command and update the command parameter "account key" in the command below:
+##### - az storage container create -n usttestcontainer --account-name ustfuncdemostorage --public-access off --resource-group ustdemo --auth-mode key --account-key ""
+#### --- - Run the above command you just updated. 
+#### --- - Create an Azure Container Registry (hereinafter called ACR)
+##### - az acr create -n ustdemoacr -g ustdemo -l eastus --sku standard
+#### --- - Get the resource ID of the ACR
+##### - $acrresourceID =$(az acr show --resource-group ustdemo --name ustdemoacr --query id --output tsv)
+#### --- - Assign the MI a role on the ACR to pull images
+##### - az role assignment create --assignee $MiSpId --scope $acrresourceID --role acrpull
+#### --- - Get connection string of the Storage Account (Copy the value of the connection string and create PowerShell variable)
+##### - az storage account show-connection-string --name ustfuncdemostorage
+##### - $connstr = "paste the connection string that you copied from output of previous command"
+#### --- - Create an Azure Key Vault (hereinafter called AKV). Make a note of the tenant ID of the AKV displayed in the output of the command.
+##### - az keyvault create -n ustdemoazkv -g ustdemo -l eastus
+#### --- - Create following secrets in AKV which will store the connection string of the storage account
+##### - az keyvault secret set --vault-name ustdemoazkv -n AzureWebJobsStorage --value $connstr
+##### - az keyvault secret set --vault-name ustdemoazkv -n storageconstr --value $connstr
+
