@@ -1,8 +1,6 @@
 {
   "IsEncrypted": true,
   "Values": {
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=ustfuncdemostorage;AccountKey=qy/h9r7N0FuODbROUPN53mj08usw1HwJQAjHMukjK5SdRgjfWyLU2Jr2ZkmOch3ysxQgt8ZrXuognw2Xz3Q0ZQ==;EndpointSuffix=core.windows.net",
-    "storageconstr": "DefaultEndpointsProtocol=https;AccountName=ustfuncdemostorage;AccountKey=qy/h9r7N0FuODbROUPN53mj08usw1HwJQAjHMukjK5SdRgjfWyLU2Jr2ZkmOch3ysxQgt8ZrXuognw2Xz3Q0ZQ==;EndpointSuffix=core.windows.net"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet"
   }
 }
