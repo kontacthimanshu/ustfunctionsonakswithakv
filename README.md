@@ -50,6 +50,7 @@
 #### --- - Get the resource ID and service principal Id of the MI
 ##### - $miresourceId=$(az identity show --resource-group ustdemo --name ustdemomi --query id --output tsv)
 ##### - $MiSpId=$(az identity show --resource-group ustdemo --name ustdemomi --query principalId --output tsv)
+##### - $miclientId=$(az identity show --resource-group ustdemo --name ustdemomi --query clientId --output tsv)
 #### --- - Create a Storage Account
 ##### - az storage account create -n ustfuncdemostorage -g ustdemo -l eastus --sku Standard_LRS
 #### --- - Create a blob container in the above storage account
@@ -71,4 +72,27 @@
 #### --- - Create following secrets in AKV which will store the connection string of the storage account
 ##### - az keyvault secret set --vault-name ustdemoazkv -n AzureWebJobsStorage --value $connstr
 ##### - az keyvault secret set --vault-name ustdemoazkv -n storageconstr --value $connstr
+#### --- - Assign MI a key and secret reader role on AKV (Skip if you don't want control plaine MI to access AKV)
+##### - az keyvault set-policy -n ustdemoazkv --secret-permissions get --spn $miclientId
+##### - az keyvault set-policy -n ustdemoazkv --key-permissions get --spn $miclientId
+#### --- - Create AKS with following add-ons (MI, Azure Key Vault Provider for Secrets Store CSI Driver):
+##### - az aks create --resource-group ustdemo --name ustdemoakscluster --network-plugin azure --enable-managed-identity --assign-identity $miresourceId --assign-kubelet-identity $miresourceId --enable-addons azure-keyvault-secrets-provider
+#### --- - Get AKS credentials and update kubectl context
+##### - az aks get-credentials --resource-group "ustdemo" --name ustdemoakscluster
+##### - kubectl config use-context ustdemoakscluster
+#### --- - Install KEDA in the cluster
+##### - helm repo add kedacore  https://kedacore.github.io/charts
+##### - helm repo update
+#### --- - Create namespace in AKS cluster for KEDA components/resources and install KEDA
+##### - kubectl create namespace keda
+##### - helm install keda kedacore/keda --namespace keda
+#### --- - Get the client ID and service principal ID of the MI of kubelet (Autocreated Azure resource group name (MC_ustdemo_ustdemoakscluster_eastus) in below command could be different for you, find it from Azure Portal)
+##### - $kbltmiclientId =  $(az identity show --resource-group MC_ustdemo_ustdemoakscluster_eastus --name ustdemoakscluster-agentpool --query clientId --output tsv)
+##### - $kbltMiSpId=$(az identity show --resource-group MC_ustdemo_ustdemoakscluster_eastus --name ustdemoakscluster-agentpool --query principalId --output tsv)
+#### --- - Assign the kubelet MI roles to read from AKV
+##### - az keyvault set-policy -n ustdemoazkv --secret-permissions get --spn $kbltmiclientId
+##### - az keyvault set-policy -n ustdemoazkv --key-permissions get --spn $kbltmiclientId
+#### --- - Assign the kubelet MI roles to read from ACR
+##### - az role assignment create --assignee $kbltMiSpId --scope $acrresourceID --role acrpull
+
 
