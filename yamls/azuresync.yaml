@@ -1,0 +1,31 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: azure-sync
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "true"    # Set to true for using managed identity
+    userAssignedIdentityID: "c18b3ae9-0de6-4756-ad25-0106e7f9186e"      # If empty, then defaults to use the system assigned identity on the VM
+    keyvaultName: "ustdemoazkv"
+    cloudName: ""                   # [OPTIONAL for Azure] if not provided, the Azure environment defaults to AzurePublicCloud  
+    tenantId: "35475cd9-ec8d-40b3-b3e2-ae71174569a2"           # The tenant ID of the key vault    
+    objects:  |
+      array:
+        - |
+          objectName: AzureWebJobsStorage
+          objectType: secret        # object types: secret, key, or cert
+          objectVersion: "44323138d7bf4dad97c49891d733b749"         # [OPTIONAL] object versions, default to latest if empty
+        - |
+          objectName: storageconstr
+          objectType: secret
+          objectVersion: "c9fd47e3653e427f899042335d0577f3"    
+  secretObjects:                              # [OPTIONAL] SecretObjects defines the desired state of synced Kubernetes secret objects
+  - data:
+    - key: AzureWebJobsStorage                           # data field to populate
+      objectName: "AzureWebJobsStorage"                        # name of the mounted content to sync; this could be the object name or the object alias
+    - key: storageconstr
+      objectName: storageconstr
+    secretName: mysecret                     # name of the Kubernetes secret object
+    type: Opaque                              # type of Kubernetes secret object (for example, Opaque, kubernetes.io/tls)
