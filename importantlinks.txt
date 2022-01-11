@@ -4,3 +4,5 @@ https://azure.github.io/secrets-store-csi-driver-provider-azure/getting-started/
 https://azure.github.io/secrets-store-csi-driver-provider-azure/configurations/identity-access-modes/service-principal-mode/
 https://azure.github.io/secrets-store-csi-driver-provider-azure/configurations/identity-access-modes/user-assigned-msi-mode/
 https://docs.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection
+
+ 
