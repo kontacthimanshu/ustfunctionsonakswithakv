@@ -111,7 +111,7 @@
 ##### - kubectl apply -f funcpod.yaml
 #### --- - To test if everything is fine, upload some files to the blob container you created in earlier steps
 #### --- - Checks logs of one of the PODs, you should see the file name printed among other logs
-##### - kubectl get pods (copy the name of the pods)
+##### - kubectl get pods (copy the name of the pods from the output)
 ##### - kubectl logs "name of the pod copied from above command"
 
 
